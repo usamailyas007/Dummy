@@ -1,5 +1,7 @@
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_dumy/ui/auth/login_screen.dart';
+import 'package:firebase_dumy/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 import '../../widgets/round_button.dart';
@@ -12,10 +14,12 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  bool loading = false;
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passController  = TextEditingController();
 
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void dispose() {
@@ -23,6 +27,25 @@ class _SignupScreenState extends State<SignupScreen> {
     emailController.dispose();
     passController.dispose();
   }
+  void signUp(){
+    setState(() {
+      loading = true;
+    });
+    _auth.createUserWithEmailAndPassword(
+        email: emailController.text.toString(),
+        password: passController.text.toString()
+    ).then((value){
+      setState(() {
+        loading = false;
+      });
+    }).onError((error, stackTrace){
+      utils().toastMessage(error.toString());
+      setState(() {
+        loading = false;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -79,9 +102,9 @@ class _SignupScreenState extends State<SignupScreen> {
               const SizedBox(
                 height: 50,
               ),
-              RoundedButton(title: 'Sign Up',onTap: (){
+              RoundedButton(title: 'Sign Up',loading: loading,onTap: (){
                 if(_formKey.currentState!.validate()){
-
+                  signUp();
                 }
               },),
               const SizedBox(height: 30,),
@@ -90,7 +113,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 children: [
                   Text('Already have an account '),
                   TextButton(onPressed: (){
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginScreen(),));
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen(),));
                   }, child: Text('Log In'))
                 ],
               )

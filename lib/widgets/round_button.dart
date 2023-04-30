@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 class RoundedButton extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
-  const RoundedButton({Key? key, required this.title,required this.onTap}) : super(key: key);
+  final bool loading;
+  const RoundedButton({Key? key, required this.title,required this.onTap,this.loading = false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class RoundedButton extends StatelessWidget {
           color: Colors.deepPurple,
           borderRadius: BorderRadius.circular(10)
         ),
-        child: Center(child: Text(title,style: TextStyle(color: Colors.white),)),
+        child: Center(child: loading? CircularProgressIndicator(strokeWidth: 3,color: Colors.white,) : Text(title,style: TextStyle(color: Colors.white),)),
       ),
     );
   }

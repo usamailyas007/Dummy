@@ -1,4 +1,7 @@
+import 'package:firebase_dumy/ui/auth/login_with_phone_number.dart';
 import 'package:firebase_dumy/ui/auth/signup_screen.dart';
+import 'package:firebase_dumy/ui/posts/post_screen.dart';
+import 'package:firebase_dumy/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../widgets/round_button.dart';
@@ -11,9 +14,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool loading = false;
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
-  final passController  = TextEditingController();
+  final passController = TextEditingController();
 
   final _auth = FirebaseAuth.instance;
 
@@ -23,9 +27,35 @@ class _LoginScreenState extends State<LoginScreen> {
     emailController.dispose();
     passController.dispose();
   }
+
+  void logIn() {
+    setState(() {
+      loading = true;
+    });
+    _auth
+        .signInWithEmailAndPassword(
+            email: emailController.text.toString(),
+            password: passController.text.toString())
+        .then((value) {
+      utils().toastMessage(value.user!.email.toString());
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PostScreen(),
+          ));
+      setState(() {
+        loading = false;
+      });
+    }).onError((error, stackTrace) {
+      utils().toastMessage(error.toString());
+      setState(() {
+        loading = false;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Center(child: Text('Login')),
@@ -38,18 +68,16 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Form(
-                key: _formKey,
+                  key: _formKey,
                   child: Column(
                     children: [
                       TextFormField(
                         keyboardType: TextInputType.emailAddress,
                         controller: emailController,
                         decoration: InputDecoration(
-                            hintText: 'Emial',
-                            prefixIcon: Icon(Icons.email)
-                        ),
-                        validator: (value){
-                          if(value!.isEmpty){
+                            hintText: 'Emial', prefixIcon: Icon(Icons.email)),
+                        validator: (value) {
+                          if (value!.isEmpty) {
                             return 'Enter Email';
                           }
                           return null;
@@ -64,36 +92,59 @@ class _LoginScreenState extends State<LoginScreen> {
                         obscureText: true,
                         decoration: InputDecoration(
                             hintText: 'Password',
-                            prefixIcon: Icon(Icons.lock_open)
-                        ),
-                        validator: (value){
-                          if(value!.isEmpty){
+                            prefixIcon: Icon(Icons.lock_open)),
+                        validator: (value) {
+                          if (value!.isEmpty) {
                             return 'Enter Password';
                           }
                           return null;
                         },
                       ),
                     ],
-                  )
-              ),
+                  )),
               const SizedBox(
                 height: 50,
               ),
-              RoundedButton(title: 'Login',onTap: (){
-                if(_formKey.currentState!.validate()){
-
-                }
-              },),
-              const SizedBox(height: 30,),
+              RoundedButton(
+                title: 'Login',
+                loading: loading,
+                onTap: () {
+                  if (_formKey.currentState!.validate()) {
+                    logIn();
+                  }
+                },
+              ),
+              const SizedBox(
+                height: 30,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('Don\'t have an account '),
-                  TextButton(onPressed: (){
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => SignupScreen(),));
-                  }, child: Text('Sign up'))
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => SignupScreen(),
+                        ));
+                      },
+                      child: Text('Sign up'))
                 ],
+              ),
+              const SizedBox(height: 50,),
+              InkWell(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => LoginWithPhoneNumber(),));
+                },
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                    border: Border.all(color: Colors.black)
+                  ),
+                  child: Center(child: Text('Login with Phone')),
+                ),
               )
+            
             ],
           ),
         ),
