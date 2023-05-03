@@ -1,6 +1,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_dumy/ui/auth/login_screen.dart';
+import 'package:firebase_dumy/ui/posts/post_screen.dart';
 import 'package:firebase_dumy/utils/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -35,6 +36,7 @@ class _SignupScreenState extends State<SignupScreen> {
         email: emailController.text.toString(),
         password: passController.text.toString()
     ).then((value){
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => PostScreen(),));
       setState(() {
         loading = false;
       });

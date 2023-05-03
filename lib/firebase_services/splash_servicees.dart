@@ -5,6 +5,8 @@ import 'package:firebase_dumy/ui/auth/login_screen.dart';
 import 'package:firebase_dumy/ui/posts/post_screen.dart';
 import 'package:flutter/material.dart';
 
+import '../ui/firestore/firestore_list.dart';
+
 class SplashServices {
   void isLogin(BuildContext context) {
     final auth = FirebaseAuth.instance;
@@ -14,7 +16,7 @@ class SplashServices {
       Timer(
           Duration(seconds: 3),
               () => Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => PostScreen())));
+              context, MaterialPageRoute(builder: (context) => FirestoreScreen())));
     }else{
       Timer(
           Duration(seconds: 3),
