@@ -4,6 +4,7 @@ import 'package:firebase_dumy/ui/posts/post_screen.dart';
 import 'package:firebase_dumy/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../forgot_password.dart';
 import '../../widgets/round_button.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -116,6 +117,16 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(
                 height: 30,
+              ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) => ForgotPassword(),
+                      ));
+                    },
+                    child: Text('Fogot Password?')),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

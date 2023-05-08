@@ -17,7 +17,7 @@ class SplashServices {
       Timer(
           Duration(seconds: 3),
               () => Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => UploadImageScreen())));
+              context, MaterialPageRoute(builder: (context) => LoginScreen())));
     }else{
       Timer(
           Duration(seconds: 3),

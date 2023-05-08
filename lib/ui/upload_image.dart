@@ -1,10 +1,11 @@
-
 import 'dart:io';
 
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_dumy/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../widgets/round_button.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class UploadImageScreen extends StatefulWidget {
   const UploadImageScreen({Key? key}) : super(key: key);
@@ -15,7 +16,12 @@ class UploadImageScreen extends StatefulWidget {
 
 class _UploadImageScreenState extends State<UploadImageScreen> {
   File? _image;
+  bool loading = false;
   final picker = ImagePicker();
+
+  firebase_storage.FirebaseStorage storage =
+      firebase_storage.FirebaseStorage.instance;
+  DatabaseReference databaseRef = FirebaseDatabase.instance.ref('Post');
 
   Future getGalleryImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -42,17 +48,16 @@ class _UploadImageScreenState extends State<UploadImageScreen> {
           Center(
             child: InkWell(
               onTap: () {
-
+                getGalleryImage();
               },
               child: Container(
                 height: 200,
                 width: 200,
-                child: Icon(Icons.browse_gallery),
-                decoration: BoxDecoration(
-                    border: Border.all(
-                        color: Colors.black
-                    )
-                ),
+                child: _image != null
+                    ? Image.file(_image!.absolute)
+                    : Center(child: Icon(Icons.image,size: 100,)),
+                decoration:
+                    BoxDecoration(border: Border.all(color: Colors.black)),
               ),
             ),
           ),
@@ -61,9 +66,37 @@ class _UploadImageScreenState extends State<UploadImageScreen> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 100),
-            child: RoundedButton(title: 'Upload', onTap: () {
+            child: RoundedButton(
+              loading: loading,
+                title: 'Upload',
+                onTap: () async {
+                  setState(() {
+                    loading = true;
+                  });
+                  firebase_storage.Reference ref = firebase_storage
+                      .FirebaseStorage.instance
+                      .ref("foldername/"+DateTime.now().millisecondsSinceEpoch.toString());
+                  firebase_storage.UploadTask uploadTask = ref.putFile(_image!.absolute);
+                  Future.value(uploadTask).then((value) async {
+                    var newUrl = await ref.getDownloadURL();
 
-            }),
+                    databaseRef.child('1').set({
+                      'id' : '1212',
+                      'user' : newUrl.toString()
+                    }).then((value){
+                      setState(() {
+                        loading = false;
+                      });
+                      utils().toastMessage('Uploaded');
+
+                    } ).onError((error, stackTrace) {
+                      loading = false;
+                      utils().toastMessage(error.toString());
+                    });
+                  }).onError((error, stackTrace) {
+                    utils().toastMessage(error.toString());
+                  });
+                }),
           )
         ],
       ),
